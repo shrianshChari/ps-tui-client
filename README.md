@@ -1,5 +1,5 @@
 # Things to do:
-- Use a JSON or YAML file for user login and other configuration (with Viper)
+- Use ~~a JSON or YAML~~ a .env file for user login and other configuration
 - Create WebSocket connection to PS server
     - https://github.com/gorilla/websocket
     - https://www.slingacademy.com/article/how-to-create-a-websocket-client-in-go/
@@ -8,6 +8,4 @@
     - https://charm.sh/blog/commands-in-bubbletea/
 - Use Bubble Tea to render TUI client
     - https://github.com/charmbracelet/bubbletea?tab=readme-ov-file#tutorial
-- Implement PS's username to color algorithm
-    - https://github.com/smogon/pokemon-showdown-client/blob/master/play.pokemonshowdown.com/src/battle-log.ts#L556
 - Figure out how to change background and text color for personalization
