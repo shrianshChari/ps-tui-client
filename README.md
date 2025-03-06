@@ -9,3 +9,5 @@
 - Use Bubble Tea to render TUI client
     - https://github.com/charmbracelet/bubbletea?tab=readme-ov-file#tutorial
 - Figure out how to change background and text color for personalization
+- Correctly sort PS groups
+    - https://github.com/shrianshChari/pokemon-showdown-client/blob/master/play.pokemonshowdown.com/src/client-main.ts#L342
