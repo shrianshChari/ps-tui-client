@@ -18,6 +18,7 @@ func initializeCustomColors() {
 	
 	curTime := time.Now()
 	fileInfo, err := os.Stat("colors.json")
+	// If the file exists and is not 24 hours out of date
 	if err != nil || curTime.Sub(fileInfo.ModTime()).Hours() >= 24 {
 		fileURL := "https://play.pokemonshowdown.com/config/colors.json"
 		err := downloadFile(fileURL)
