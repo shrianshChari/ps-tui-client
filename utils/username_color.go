@@ -9,6 +9,8 @@ import (
 var ColorCache map[string]string = make(map[string]string)
 
 // Converts a PS username into a color in RGB
+// Original algorithm source:
+// https://github.com/shrianshChari/pokemon-showdown-client/blob/master/play.pokemonshowdown.com/src/battle-log.ts#L562
 func UsernameToColor(username string) string {
 	id := ToID(username)
 
