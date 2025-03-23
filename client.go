@@ -73,7 +73,7 @@ func receiveHandler(connection *websocket.Conn) {
 
 				switch strings.ToLower(messageType) {
 				case "challstr":
-					data, err := chats.ChallStr(messageData)
+					data, err := commands.ChallStr(messageData)
 					if err != nil {
 						log.Printf("Error in challstr: %v\n", err)
 					} else {
@@ -82,7 +82,7 @@ func receiveHandler(connection *websocket.Conn) {
 						connection.WriteMessage(websocket.TextMessage, []byte(trn))
 					}
 				case "chat", "c":
-					chatMsg, err := chats.Chat(messageData, room)
+					chatMsg, err := commands.Chat(messageData, room)
 					if err != nil {
 						log.Printf("Error in chat: %v\n", err)
 					} else {
@@ -90,7 +90,7 @@ func receiveHandler(connection *websocket.Conn) {
 						log.Printf("%s (%s): %s", chatMsg.Username, color, chatMsg.Message)
 					}
 				case "chat:", "c:":
-					chatMsg, err := chats.ChatTimestamp(messageData, room)
+					chatMsg, err := commands.ChatTimestamp(messageData, room)
 					if err != nil {
 						log.Printf("Error in chat: %v\n", err)
 					} else {
