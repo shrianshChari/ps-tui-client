@@ -1,4 +1,4 @@
-package chats
+package commands
 
 import (
 	"bytes"
@@ -15,11 +15,11 @@ import (
 
 type ChallStrData struct {
 	Actionsuccess bool
-	Assertion string
-	Curuser struct {
+	Assertion     string
+	Curuser       struct {
 		Loggedin bool
 		Username string
-		Userid string
+		Userid   string
 	}
 }
 
@@ -29,9 +29,9 @@ func ChallStr(challStr string) (ChallStrData, error) {
 	user := os.Getenv("PS_USERNAME")
 	pass := os.Getenv("PS_PASSWORD")
 
-	parameters := map[string]string {
-		"name": user,
-		"pass": pass,
+	parameters := map[string]string{
+		"name":     user,
+		"pass":     pass,
 		"challstr": challStr,
 	}
 
@@ -42,8 +42,8 @@ func ChallStr(challStr string) (ChallStrData, error) {
 
 	challStrUrl := url.URL{
 		Scheme: "https",
-		Host: "play.pokemonshowdown.com",
-		Path: "api/login",
+		Host:   "play.pokemonshowdown.com",
+		Path:   "api/login",
 	}
 
 	log.Printf("ChallStr URL: %s\n", challStrUrl.String())
@@ -59,9 +59,9 @@ func ChallStr(challStr string) (ChallStrData, error) {
 	if err != nil {
 		return data, err
 	}
-	
+
 	body = body[1:]
-	
+
 	log.Printf("Body: %s\n", body)
 
 	err = json.Unmarshal(body, &data)

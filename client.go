@@ -3,7 +3,7 @@ package main
 
 import (
 	"bufio"
-	"charm-psclient/chats"
+	"charm-psclient/commands"
 	"charm-psclient/utils"
 	"fmt"
 	"log"
