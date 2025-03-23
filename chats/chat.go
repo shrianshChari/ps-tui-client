@@ -70,3 +70,9 @@ func ChatTimestamp(chatData string, room string) (message ChatMessage, e error) 
 
 	return chatMsg, nil
 }
+
+type ChatMessagesSortable []ChatMessage
+
+func (m ChatMessagesSortable) Len() int           { return len(m) }
+func (m ChatMessagesSortable) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
+func (m ChatMessagesSortable) Less(i, j int) bool { return m[i].Timestamp < m[j].Timestamp }
