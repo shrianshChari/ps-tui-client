@@ -111,6 +111,9 @@ func receiveHandler(connection *websocket.Conn) {
 					} else {
 						log.Printf("Unknown querytype %s\n", queryType)
 					}
+				case "users":
+					users := commands.Users(messageData)
+					log.Printf("Users: %v\n", users)
 				}
 				log.Printf("%s,%s\n", messageType, messageData)
 			} else {
