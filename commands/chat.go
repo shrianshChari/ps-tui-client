@@ -1,26 +1,19 @@
 package commands
 
 import (
+	"charm-psclient/datastructs"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 )
 
-type ChatMessage struct {
-	Room      string
-	Username  string
-	Message   string
-	Timestamp int64
-	Time      string
-}
-
-func Chat(chatData string, room string) (message ChatMessage, e error) {
+func Chat(chatData string, room string) (message datastructs.ChatMessage, e error) {
 	if room == "" {
 		room = "lobby"
 	}
 
-	chatMsg := ChatMessage{}
+	chatMsg := datastructs.ChatMessage{}
 
 	data := strings.SplitN(chatData, "|", 2)
 	if len(data) < 2 {
@@ -40,12 +33,12 @@ func Chat(chatData string, room string) (message ChatMessage, e error) {
 	return chatMsg, nil
 }
 
-func ChatTimestamp(chatData string, room string) (message ChatMessage, e error) {
+func ChatTimestamp(chatData string, room string) (message datastructs.ChatMessage, e error) {
 	if room == "" {
 		room = "lobby"
 	}
 
-	chatMsg := ChatMessage{}
+	chatMsg := datastructs.ChatMessage{}
 
 	data := strings.SplitN(chatData, "|", 3)
 	if len(data) < 3 {
@@ -70,9 +63,3 @@ func ChatTimestamp(chatData string, room string) (message ChatMessage, e error) 
 
 	return chatMsg, nil
 }
-
-type ChatMessagesSortable []ChatMessage
-
-func (m ChatMessagesSortable) Len() int           { return len(m) }
-func (m ChatMessagesSortable) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
-func (m ChatMessagesSortable) Less(i, j int) bool { return m[i].Timestamp < m[j].Timestamp }
