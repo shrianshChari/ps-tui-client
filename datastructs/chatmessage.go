@@ -2,7 +2,7 @@ package datastructs
 
 type ChatMessage struct {
 	Room      string
-	Username  string
+	Username  User
 	Message   string
 	Timestamp int64
 	Time      string

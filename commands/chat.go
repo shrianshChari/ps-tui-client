@@ -24,7 +24,7 @@ func Chat(chatData string, room string) (message datastructs.ChatMessage, e erro
 	msg := data[1]
 
 	chatMsg.Room = room
-	chatMsg.Username = user
+	chatMsg.Username = StringToUser(user)
 	chatMsg.Message = msg
 
 	chatMsg.Timestamp = -1
@@ -55,7 +55,7 @@ func ChatTimestamp(chatData string, room string) (message datastructs.ChatMessag
 	}
 
 	chatMsg.Room = room
-	chatMsg.Username = user
+	chatMsg.Username = StringToUser(user)
 	chatMsg.Message = msg
 
 	chatMsg.Timestamp = timestampInt

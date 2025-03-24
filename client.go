@@ -86,16 +86,18 @@ func receiveHandler(connection *websocket.Conn) {
 					if err != nil {
 						log.Printf("Error in chat: %v\n", err)
 					} else {
-						color := utils.UsernameToColor(chatMsg.Username)
-						log.Printf("%s (%s): %s", chatMsg.Username, color, chatMsg.Message)
+						color := utils.UsernameToColor(chatMsg.Username.Username)
+						log.Printf("(%s) %s%s: %s", color, chatMsg.Username.Group.Symbol,
+							chatMsg.Username.Username, chatMsg.Message)
 					}
 				case "chat:", "c:":
 					chatMsg, err := commands.ChatTimestamp(messageData, room)
 					if err != nil {
 						log.Printf("Error in chat: %v\n", err)
 					} else {
-						color := utils.UsernameToColor(chatMsg.Username)
-						log.Printf("[%s] %s (%s): %s", chatMsg.Time, chatMsg.Username, color, chatMsg.Message)
+						color := utils.UsernameToColor(chatMsg.Username.Username)
+						log.Printf("[%s] (%s) %s%s: %s", chatMsg.Time, color, chatMsg.Username.Group.Symbol,
+							chatMsg.Username.Username, chatMsg.Message)
 					}
 				case "queryresponse":
 					responseSplit := strings.SplitN(messageData, "|", 2)
