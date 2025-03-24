@@ -97,6 +97,20 @@ func receiveHandler(connection *websocket.Conn) {
 						color := utils.UsernameToColor(chatMsg.Username)
 						log.Printf("[%s] %s (%s): %s", chatMsg.Time, chatMsg.Username, color, chatMsg.Message)
 					}
+				case "queryresponse":
+					responseSplit := strings.SplitN(messageData, "|", 2)
+					queryType := responseSplit[0]
+					queryJson := responseSplit[1]
+
+					if queryType == "rooms" {
+						roomData, err := commands.QueryresponseRooms(queryJson)
+						if err != nil {
+							log.Printf("Error in queryresponse rooms: %v\n", err)
+						}
+						log.Printf("Roomdata: %v\n", roomData)
+					} else {
+						log.Printf("Unknown querytype %s\n", queryType)
+					}
 				}
 				log.Printf("%s,%s\n", messageType, messageData)
 			} else {
