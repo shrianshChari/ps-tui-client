@@ -11,8 +11,10 @@ func Users(data string) datastructs.UsersSortable {
 	var users datastructs.UsersSortable = datastructs.UsersSortable{}
 
 	usersSplit := strings.Split(data, ",")
-	for _, user := range usersSplit {
-		users = append(users, StringToUser(user))
+	for index, user := range usersSplit {
+		if index > 0 {
+			users = append(users, StringToUser(user))
+		}
 	}
 	sort.Sort(users)
 	return users
