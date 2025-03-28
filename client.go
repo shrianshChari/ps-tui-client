@@ -48,7 +48,7 @@ func receiveHandler(connection *websocket.Conn) {
 		msgStr := string(msg)
 		log.Printf("Received: %s\n\n", msgStr)
 
-		var room string = "lobby"
+		var roomName string = "lobby"
 		lines := strings.Split(msgStr, "\n")
 		for _, line := range lines {
 			if len(line) == 0 {
@@ -56,7 +56,7 @@ func receiveHandler(connection *websocket.Conn) {
 				continue
 			} else if strings.HasPrefix(line, ">") {
 				// Room ID
-				room = line[1:]
+				roomName = line[1:]
 			} else if strings.HasPrefix(msgStr, "|") {
 				// |TYPE|DATA
 				split := strings.SplitN(line, "|", 3)
@@ -82,7 +82,7 @@ func receiveHandler(connection *websocket.Conn) {
 						connection.WriteMessage(websocket.TextMessage, []byte(trn))
 					}
 				case "chat", "c":
-					chatMsg, err := commands.Chat(messageData, room)
+					chatMsg, err := commands.Chat(messageData, roomName)
 					if err != nil {
 						log.Printf("Error in chat: %v\n", err)
 					} else {
@@ -91,7 +91,7 @@ func receiveHandler(connection *websocket.Conn) {
 							chatMsg.Username.Username, chatMsg.Message)
 					}
 				case "chat:", "c:":
-					chatMsg, err := commands.ChatTimestamp(messageData, room)
+					chatMsg, err := commands.ChatTimestamp(messageData, roomName)
 					if err != nil {
 						log.Printf("Error in chat: %v\n", err)
 					} else {
@@ -122,7 +122,7 @@ func receiveHandler(connection *websocket.Conn) {
 				log.Println(line)
 			}
 		}
-		log.Println(room)
+		log.Println(roomName)
 	}
 }
 
