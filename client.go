@@ -4,6 +4,7 @@ package main
 import (
 	"bufio"
 	"charm-psclient/commands"
+	"charm-psclient/datastructs"
 	"charm-psclient/utils"
 	"fmt"
 	"log"
@@ -26,6 +27,7 @@ var interrupt chan os.Signal
 
 var inputChannel chan string
 
+var serverState datastructs.Server
 var fileLogger *log.Logger
 
 func processInput(inputChan <-chan string, done chan<- bool, connection *websocket.Conn) {
@@ -79,6 +81,29 @@ func receiveHandler(connection *websocket.Conn) {
 				fileLogger.Printf("Message data: %s\n", messageData)
 
 				switch strings.ToLower(messageType) {
+				case "init":
+					serverState.Rooms[roomName] = datastructs.Room{}
+					fileLogger.Printf("Initializing room %s\n", roomName)
+				case "title":
+					room := serverState.Rooms[roomName]
+					room.RoomName = messageData
+					serverState.Rooms[roomName] = room
+					fileLogger.Printf("Title of room %s: %s\n", roomName, messageData)
+				case "users":
+					room := serverState.Rooms[roomName]
+					room.Users = make(map[string]datastructs.User)
+					users := commands.Users(messageData)
+					for _, user := range users {
+						room.Users[user.Id] = user
+					}
+					serverState.Rooms[roomName] = room
+					fileLogger.Printf("Users in room %s: %v\n", roomName, room.Users)
+				case "deinit":
+					room := serverState.Rooms[roomName]
+					room.Users = nil
+					serverState.Rooms[roomName] = room
+					delete(serverState.Rooms, roomName)
+					fileLogger.Printf("Deinitializing room %s\n", roomName)
 				case "challstr":
 					data, err := commands.ChallStr(messageData, fileLogger)
 					if err != nil {
@@ -98,6 +123,10 @@ func receiveHandler(connection *websocket.Conn) {
 							chatMsg.Username.Username, chatMsg.Message)
 						fileLogger.Printf("New message in room %s: %v\n", roomName, chatMsg)
 					}
+					room, ok := serverState.Rooms[roomName]
+					if ok {
+						room.ChatMessages = append(room.ChatMessages, chatMsg)
+					}
 				case "chat:", "c:":
 					chatMsg, err := commands.ChatTimestamp(messageData, roomName)
 					if err != nil {
@@ -107,6 +136,10 @@ func receiveHandler(connection *websocket.Conn) {
 						fmt.Printf("[%s] (%s) %s%s: %s\n", chatMsg.Time, color, chatMsg.Username.Group.Symbol,
 							chatMsg.Username.Username, chatMsg.Message)
 						fileLogger.Printf("New message in room %s: %v\n", roomName, chatMsg)
+					}
+					room, ok := serverState.Rooms[roomName]
+					if ok {
+						room.ChatMessages = append(room.ChatMessages, chatMsg)
 					}
 				case "queryresponse":
 					responseSplit := strings.SplitN(messageData, "|", 2)
@@ -141,6 +174,10 @@ func main() {
 	writer := transform.NewWriter(logfile, utf8Encoder)
 
 	fileLogger = log.New(writer, "INFO: ", log.LstdFlags)
+
+	serverState = datastructs.Server{}
+	serverState.Rooms = make(map[string]datastructs.Room)
+	serverState.RoomsInfo = datastructs.RoomResponse{}
 
 	done = make(chan bool)           // Channel to indicate that the receiverHandler is done
 	interrupt = make(chan os.Signal) // Channel to listen for interrupt signal to terminate gracefully
