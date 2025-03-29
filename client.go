@@ -14,6 +14,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
+
 	// Autoloads .env variables into os.Getenv
 	_ "github.com/joho/godotenv/autoload"
 )
