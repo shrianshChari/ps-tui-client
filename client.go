@@ -23,15 +23,17 @@ var interrupt chan os.Signal
 
 var inputChannel chan string
 
+var fileLogger *log.Logger
+
 func processInput(inputChan <-chan string, done chan<- bool, connection *websocket.Conn) {
 	for input := range inputChan {
-		log.Printf("Input received: '%s'\n", input)
+		fileLogger.Printf("Input received: '%s'\n", input)
 
 		if !strings.Contains(input, "|") {
 			input = "|" + input
 		}
 
-		log.Printf("Sending message: ")
+		fileLogger.Printf("Sending message: ")
 		connection.WriteMessage(websocket.TextMessage, []byte(input))
 	}
 	done <- true
@@ -42,17 +44,17 @@ func receiveHandler(connection *websocket.Conn) {
 	for {
 		_, msg, err := connection.ReadMessage()
 		if err != nil {
-			log.Println("Error in receive:", err)
+			fileLogger.Println("Error in receive:", err)
 			return
 		}
 		msgStr := string(msg)
-		log.Printf("Received: %s\n\n", msgStr)
+		fileLogger.Printf("Received: %s\n", msgStr)
 
 		var roomName string = "lobby"
 		lines := strings.Split(msgStr, "\n")
 		for _, line := range lines {
 			if len(line) == 0 {
-				log.Println("Empty line, skipping.")
+				fileLogger.Println("Empty line, skipping.")
 				continue
 			} else if strings.HasPrefix(line, ">") {
 				// Room ID
@@ -60,7 +62,7 @@ func receiveHandler(connection *websocket.Conn) {
 			} else if strings.HasPrefix(msgStr, "|") {
 				// |TYPE|DATA
 				split := strings.SplitN(line, "|", 3)
-				log.Println(split, len(split))
+				fileLogger.Println(split, len(split))
 				var messageType string
 				var messageData string
 				if len(split) == 3 {
@@ -70,34 +72,38 @@ func receiveHandler(connection *websocket.Conn) {
 					messageType = split[1]
 					messageData = ""
 				}
+				fileLogger.Printf("Message type: %s\n", messageType)
+				fileLogger.Printf("Message data: %s\n", messageData)
 
 				switch strings.ToLower(messageType) {
 				case "challstr":
-					data, err := commands.ChallStr(messageData)
+					data, err := commands.ChallStr(messageData, fileLogger)
 					if err != nil {
-						log.Printf("Error in challstr: %v\n", err)
+						fileLogger.Printf("Error in challstr: %v\n", err)
 					} else {
 						trn := fmt.Sprintf("|/trn %s,0,%s", data.Curuser.Username, data.Assertion)
-						log.Printf("Sending: %s\n", trn)
+						fileLogger.Printf("Sending: %s\n", trn)
 						connection.WriteMessage(websocket.TextMessage, []byte(trn))
 					}
 				case "chat", "c":
 					chatMsg, err := commands.Chat(messageData, roomName)
 					if err != nil {
-						log.Printf("Error in chat: %v\n", err)
+						fileLogger.Printf("Error in chat: %v\n", err)
 					} else {
 						color := utils.UsernameToColor(chatMsg.Username.Username)
-						log.Printf("(%s) %s%s: %s", color, chatMsg.Username.Group.Symbol,
+						fmt.Printf("(%s) %s%s: %s\n", color, chatMsg.Username.Group.Symbol,
 							chatMsg.Username.Username, chatMsg.Message)
+						fileLogger.Printf("New message in room %s: %v\n", roomName, chatMsg)
 					}
 				case "chat:", "c:":
 					chatMsg, err := commands.ChatTimestamp(messageData, roomName)
 					if err != nil {
-						log.Printf("Error in chat: %v\n", err)
+						fileLogger.Printf("Error in chat: %v\n", err)
 					} else {
 						color := utils.UsernameToColor(chatMsg.Username.Username)
-						log.Printf("[%s] (%s) %s%s: %s", chatMsg.Time, color, chatMsg.Username.Group.Symbol,
+						fmt.Printf("[%s] (%s) %s%s: %s\n", chatMsg.Time, color, chatMsg.Username.Group.Symbol,
 							chatMsg.Username.Username, chatMsg.Message)
+						fileLogger.Printf("New message in room %s: %v\n", roomName, chatMsg)
 					}
 				case "queryresponse":
 					responseSplit := strings.SplitN(messageData, "|", 2)
@@ -107,26 +113,32 @@ func receiveHandler(connection *websocket.Conn) {
 					if queryType == "rooms" {
 						roomData, err := commands.QueryresponseRooms(queryJson)
 						if err != nil {
-							log.Printf("Error in queryresponse rooms: %v\n", err)
+							fileLogger.Printf("Error in queryresponse rooms: %v\n", err)
 						}
-						log.Printf("Roomdata: %v\n", roomData)
+						serverState.RoomsInfo = roomData
+						fileLogger.Printf("Roomdata: %v\n", roomData)
 					} else {
-						log.Printf("Unknown querytype %s\n", queryType)
+						fileLogger.Printf("Unknown querytype %s\n", queryType)
 					}
-				case "users":
-					users := commands.Users(messageData)
-					log.Printf("Users: %v\n", users)
 				}
-				log.Printf("%s,%s\n", messageType, messageData)
 			} else {
-				log.Println(line)
+				fileLogger.Println(line)
 			}
 		}
-		log.Println(roomName)
 	}
 }
 
 func main() {
+	logfileName := fmt.Sprintf("logs/%s.log", time.Now().Format(time.DateTime))
+	logfile, _ := os.OpenFile(logfileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	defer logfile.Close()
+
+	// This will ensure that my logger will write UTF-8 to my log file
+	utf8Encoder := unicode.UTF8.NewEncoder()
+	writer := transform.NewWriter(logfile, utf8Encoder)
+
+	fileLogger = log.New(writer, "INFO: ", log.LstdFlags)
+
 	done = make(chan bool)           // Channel to indicate that the receiverHandler is done
 	interrupt = make(chan os.Signal) // Channel to listen for interrupt signal to terminate gracefully
 
@@ -147,11 +159,11 @@ func main() {
 	} else {
 		u = url.URL{Scheme: "wss", Host: serverUrl, Path: "showdown/websocket"}
 	}
-	log.Printf("Attempting to connect to %s\n", u.String())
+	fileLogger.Printf("Attempting to connect to %s\n", u.String())
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
-		log.Fatal("Error connecting to Websocket Server:", err)
+		fileLogger.Fatal("Error connecting to Websocket Server:", err)
 	}
 	defer conn.Close()
 	go receiveHandler(conn)
@@ -164,7 +176,7 @@ func main() {
 			fmt.Print("> ")
 			input, err := reader.ReadString('\n')
 			if err != nil {
-				log.Println("Error reading input:", err)
+				fileLogger.Println("Error reading input:", err)
 				return
 			}
 			input = strings.TrimSpace(input)
@@ -180,7 +192,7 @@ func main() {
 			// Send an echo packet every second
 			err := conn.WriteMessage(websocket.TextMessage, []byte("|/cmd rooms"))
 			if err != nil {
-				log.Println("Error during writing to websocket:", err)
+				fileLogger.Println("Error during writing to websocket:", err)
 				return
 			}
 
@@ -189,20 +201,20 @@ func main() {
 
 		case <-interrupt:
 			// We received a SIGINT (Ctrl + C). Terminate gracefully...
-			log.Println("Received SIGINT interrupt signal. Closing all pending connections")
+			fileLogger.Println("Received SIGINT interrupt signal. Closing all pending connections")
 
 			// Close our websocket connection
 			err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 			if err != nil {
-				log.Println("Error during closing websocket:", err)
+				fileLogger.Println("Error during closing websocket:", err)
 				return
 			}
 
 			select {
 			case <-done:
-				log.Println("Receiver Channel Closed! Exiting....")
+				fileLogger.Println("Receiver Channel Closed! Exiting....")
 			case <-time.After(time.Duration(1) * time.Second):
-				log.Println("Timeout in closing receiving channel. Exiting....")
+				fileLogger.Println("Timeout in closing receiving channel. Exiting....")
 			}
 			return
 		}

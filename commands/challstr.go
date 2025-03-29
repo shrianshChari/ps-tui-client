@@ -23,7 +23,7 @@ type ChallStrData struct {
 	}
 }
 
-func ChallStr(challStr string) (ChallStrData, error) {
+func ChallStr(challStr string, logger *log.Logger) (ChallStrData, error) {
 	data := ChallStrData{}
 
 	user := os.Getenv("PS_USERNAME")
@@ -46,7 +46,7 @@ func ChallStr(challStr string) (ChallStrData, error) {
 		Path:   "api/login",
 	}
 
-	log.Printf("ChallStr URL: %s\n", challStrUrl.String())
+	logger.Printf("ChallStr URL: %s\n", challStrUrl.String())
 
 	resp, err := http.Post(challStrUrl.String(), "application/json", bytes.NewBuffer(parameterJson))
 	if err != nil {
@@ -62,7 +62,7 @@ func ChallStr(challStr string) (ChallStrData, error) {
 
 	body = body[1:]
 
-	log.Printf("Body: %s\n", body)
+	logger.Printf("Body: %s\n", body)
 
 	err = json.Unmarshal(body, &data)
 	if err != nil {
