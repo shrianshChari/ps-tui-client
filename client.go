@@ -77,8 +77,6 @@ func receiveHandler(connection *websocket.Conn) {
 					messageType = split[1]
 					messageData = ""
 				}
-				fileLogger.Printf("Message type: %s\n", messageType)
-				fileLogger.Printf("Message data: %s\n", messageData)
 
 				switch strings.ToLower(messageType) {
 				case "init":
@@ -156,6 +154,9 @@ func receiveHandler(connection *websocket.Conn) {
 					} else {
 						fileLogger.Printf("Unknown querytype %s\n", queryType)
 					}
+				default:
+					fileLogger.Printf("Message type: %s\n", messageType)
+					fileLogger.Printf("Message data: %s\n", messageData)
 				}
 			} else {
 				fileLogger.Println(line)
