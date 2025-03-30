@@ -64,7 +64,7 @@ func receiveHandler(connection *websocket.Conn) {
 			} else if strings.HasPrefix(line, ">") {
 				// Room ID
 				roomName = line[1:]
-			} else if strings.HasPrefix(msgStr, "|") {
+			} else if strings.HasPrefix(line, "|") {
 				// |TYPE|DATA
 				split := strings.SplitN(line, "|", 3)
 				fileLogger.Println(split, len(split))
