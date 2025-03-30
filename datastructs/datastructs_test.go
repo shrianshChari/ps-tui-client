@@ -50,21 +50,21 @@ func TestUserLess(t *testing.T) {
 		},
 	}
 
-	// Users with a lower rank should be less than users with a higher rank
-	if !users.Less(0, 1) {
-		// Default vs Voiced
+	// Users with a higher rank should be less than users with a lower rank
+	if !users.Less(1, 0) {
+		// Voiced < Default
 		t.Fatalf("User with rank '%s' is not less than user with rank '%s'.",
-			users[0].Group.Symbol, users[1].Group.Symbol)
+			users[1].Group.Symbol, users[0].Group.Symbol)
 	}
-	if !users.Less(1, 5) {
-		// Voiced vs Administrator
+	if !users.Less(5, 1) {
+		// Administrator < Voiced
 		t.Fatalf("User with rank '%s' is not less than user with rank '%s'.",
-			users[1].Group.Symbol, users[5].Group.Symbol)
+			users[5].Group.Symbol, users[1].Group.Symbol)
 	}
-	if !users.Less(6, 0) {
+	if !users.Less(0, 6) {
 		// Locked vs Default
 		t.Fatalf("User with rank '%s' is not less than user with rank '%s'.",
-			users[6].Group.Symbol, users[0].Group.Symbol)
+			users[0].Group.Symbol, users[6].Group.Symbol)
 	}
 
 	// Away users should be less than non-away users with the same rank
