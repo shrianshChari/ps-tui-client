@@ -95,7 +95,7 @@ func receiveHandler(connection *websocket.Conn) {
 						room.Users[user.Id] = user
 					}
 					serverState.Rooms[roomName] = room
-					fileLogger.Printf("Users in room %s: %v\n", roomName, room.Users)
+					fileLogger.Printf("Users in room %s: %v\n", roomName, users)
 				case "deinit":
 					room := serverState.Rooms[roomName]
 					room.Users = nil
