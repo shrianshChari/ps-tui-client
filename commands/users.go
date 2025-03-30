@@ -23,8 +23,11 @@ func Users(data string) datastructs.UsersSortable {
 func StringToUser(data string) datastructs.User {
 	away := false
 
-	groupStr := data[0]
-	username := data[1:]
+	// Necessary to capture groups that are represented by Unicode characters
+	runes := []rune(data)
+
+	groupStr := runes[0]
+	username := string(runes[1:])
 
 	if strings.HasSuffix(username, "@!") {
 		away = true
