@@ -62,7 +62,7 @@ func TestUserLess(t *testing.T) {
 			users[5].Group.Symbol, users[1].Group.Symbol)
 	}
 	if !users.Less(0, 6) {
-		// Locked vs Default
+		// Default < Locked
 		t.Fatalf("User with rank '%s' is not less than user with rank '%s'.",
 			users[0].Group.Symbol, users[6].Group.Symbol)
 	}
