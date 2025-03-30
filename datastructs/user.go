@@ -16,10 +16,10 @@ func (u UsersSortable) Less(i, j int) bool {
 		return u[i].Group.Order < u[j].Group.Order
 	}
 	if !u[i].Away && u[j].Away {
-		return false
+		return true
 	}
 	if u[i].Away && !u[j].Away {
-		return true
+		return false
 	}
 	return u[i].Id < u[j].Id
 }

@@ -67,9 +67,9 @@ func TestUserLess(t *testing.T) {
 			users[0].Group.Symbol, users[6].Group.Symbol)
 	}
 
-	// Away users should be less than non-away users with the same rank
-	if !users.Less(1, 3) {
-		t.Fatalf("Away user is not less than non-away user.")
+	// Non-away users should be less than away users with the same rank
+	if users.Less(1, 3) {
+		t.Fatalf("Away user is less than non-away user.")
 	}
 
 	// Users with the same rank and away status should be sorted by ID
