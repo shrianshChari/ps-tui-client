@@ -67,7 +67,6 @@ func receiveHandler(connection *websocket.Conn) {
 			} else if strings.HasPrefix(line, "|") {
 				// |TYPE|DATA
 				split := strings.SplitN(line, "|", 3)
-				fileLogger.Println(split, len(split))
 				var messageType string
 				var messageData string
 				if len(split) == 3 {
