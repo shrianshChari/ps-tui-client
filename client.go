@@ -165,6 +165,16 @@ func receiveHandler(connection *websocket.Conn) {
 }
 
 func main() {
+	info, err := os.Stat("logs")
+	if err != nil && os.IsNotExist(err) {
+		err := os.Mkdir("logs", 0750)
+		if err != nil {
+			log.Fatalf("Error when trying to create logs folder: %v\n", err)
+		}
+	} else if !info.IsDir() {
+		log.Fatal("logs already exists as file; please delete before rerunning.")
+	}
+
 	logfileName := fmt.Sprintf("logs/%s.log", time.Now().Format(time.DateTime))
 	logfile, _ := os.OpenFile(logfileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	defer logfile.Close()
