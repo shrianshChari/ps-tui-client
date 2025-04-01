@@ -98,6 +98,18 @@ func receiveHandler(connection *websocket.Conn) {
 					users = room.GetUsers()
 					sort.Sort(users)
 					fileLogger.Printf("Users in room %s: %v\n", roomName, users)
+				case "J", "j", "join":
+					room := serverState.Rooms[roomName]
+					newUser := commands.StringToUser(messageData)
+					room.Users[newUser.Id] = newUser
+					serverState.Rooms[roomName] = room
+					fileLogger.Printf("User joined room %s: %s\n", roomName, newUser.Username)
+				case "L", "l", "leave":
+					room := serverState.Rooms[roomName]
+					userToDelete := commands.StringToUser(messageData)
+					delete(room.Users, userToDelete.Id)
+					serverState.Rooms[roomName] = room
+					fileLogger.Printf("User left room %s: %s\n", roomName, userToDelete.Username)
 				case "deinit":
 					room := serverState.Rooms[roomName]
 					room.Users = nil
