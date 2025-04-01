@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"time"
 
@@ -94,6 +95,8 @@ func receiveHandler(connection *websocket.Conn) {
 						room.Users[user.Id] = user
 					}
 					serverState.Rooms[roomName] = room
+					users = room.GetUsers()
+					sort.Sort(users)
 					fileLogger.Printf("Users in room %s: %v\n", roomName, users)
 				case "deinit":
 					room := serverState.Rooms[roomName]

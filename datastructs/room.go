@@ -5,3 +5,13 @@ type Room struct {
 	Users        map[string]User
 	ChatMessages ChatMessagesSortable
 }
+
+func (r Room) GetUsers() UsersSortable {
+	users := UsersSortable{}
+
+	for _, user := range r.Users {
+		users = append(users, user)
+	}
+
+	return users
+}
