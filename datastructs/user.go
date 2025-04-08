@@ -3,7 +3,7 @@ package datastructs
 type User struct {
 	Username string
 	Id       string
-	Group    group
+	Group    Group
 	Away     bool
 }
 

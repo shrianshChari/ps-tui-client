@@ -90,7 +90,7 @@ func receiveHandler(connection *websocket.Conn) {
 				case "users":
 					room := serverState.Rooms[roomName]
 					room.Users = make(map[string]datastructs.User)
-					users := commands.Users(messageData)
+					users := commands.Users(messageData, serverState.Groups)
 					for _, user := range users {
 						room.Users[user.Id] = user
 					}
@@ -100,13 +100,13 @@ func receiveHandler(connection *websocket.Conn) {
 					fileLogger.Printf("Users in room %s: %v\n", roomName, users)
 				case "J", "j", "join":
 					room := serverState.Rooms[roomName]
-					newUser := commands.StringToUser(messageData)
+					newUser := commands.StringToUser(messageData, serverState.Groups)
 					room.Users[newUser.Id] = newUser
 					serverState.Rooms[roomName] = room
 					fileLogger.Printf("User joined room %s: %s\n", roomName, newUser.Username)
 				case "L", "l", "leave":
 					room := serverState.Rooms[roomName]
-					userToDelete := commands.StringToUser(messageData)
+					userToDelete := commands.StringToUser(messageData, serverState.Groups)
 					delete(room.Users, userToDelete.Id)
 					serverState.Rooms[roomName] = room
 					fileLogger.Printf("User left room %s: %s\n", roomName, userToDelete.Username)
@@ -126,7 +126,7 @@ func receiveHandler(connection *websocket.Conn) {
 						connection.WriteMessage(websocket.TextMessage, []byte(trn))
 					}
 				case "chat", "c":
-					chatMsg, err := commands.Chat(messageData, roomName)
+					chatMsg, err := commands.Chat(messageData, roomName, serverState.Groups)
 					if err != nil {
 						fileLogger.Printf("Error in chat: %v\n", err)
 					} else {
@@ -140,7 +140,7 @@ func receiveHandler(connection *websocket.Conn) {
 						room.ChatMessages = append(room.ChatMessages, chatMsg)
 					}
 				case "chat:", "c:":
-					chatMsg, err := commands.ChatTimestamp(messageData, roomName)
+					chatMsg, err := commands.ChatTimestamp(messageData, roomName, serverState.Groups)
 					if err != nil {
 						fileLogger.Printf("Error in chat: %v\n", err)
 					} else {
@@ -203,6 +203,7 @@ func main() {
 	serverState = datastructs.Server{}
 	serverState.Rooms = make(map[string]datastructs.Room)
 	serverState.RoomsInfo = datastructs.RoomResponse{}
+	serverState.Groups = datastructs.DefaultGroups
 
 	done = make(chan bool)           // Channel to indicate that the receiverHandler is done
 	interrupt = make(chan os.Signal) // Channel to listen for interrupt signal to terminate gracefully

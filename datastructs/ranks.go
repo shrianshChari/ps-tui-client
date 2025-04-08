@@ -1,6 +1,6 @@
 package datastructs
 
-type group struct {
+type Group struct {
 	Name   string
 	Symbol string
 	Type   string
@@ -9,152 +9,83 @@ type group struct {
 
 // Group definitions defined in:
 // https://github.com/smogon/pokemon-showdown-client/blob/master/play.pokemonshowdown.com/src/client-main.ts#L342
-func roomOwner() group {
-	return group{
+var DefaultGroups = map[string]Group{
+	"#": Group{
 		Name:   "Room Owner",
 		Symbol: "#",
 		Type:   "leadership",
 		Order:  101,
-	}
-}
-
-func administrator() group {
-	return group{
+	},
+	"~": Group{
 		Name:   "Administrator",
 		Symbol: "~",
 		Type:   "leadership",
 		Order:  102,
-	}
-}
-
-func administrator2() group {
-	return group{
+	},
+	"&": Group{
 		Name:   "Administrator",
 		Symbol: "&",
 		Type:   "leadership",
 		Order:  103,
-	}
-}
-
-func host() group {
-	return group{
+	},
+	"\u2605": Group{
 		Name:   "Host",
 		Symbol: "\u2605",
 		Type:   "staff",
 		Order:  104,
-	}
-}
-
-func moderator() group {
-	return group{
+	},
+	"@": Group{
 		Name:   "Moderator",
 		Symbol: "@",
 		Type:   "staff",
 		Order:  105,
-	}
-}
-
-func driver() group {
-	return group{
+	},
+	"%": Group{
 		Name:   "Driver",
 		Symbol: "%",
 		Type:   "staff",
 		Order:  106,
-	}
-}
-
-func bot() group {
-	return group{
+	},
+	"*": Group{
 		Name:   "Bot",
 		Symbol: "*",
 		Type:   "normal",
 		Order:  109,
-	}
-}
-
-func player() group {
-	return group{
+	},
+	"\u2606": Group{
 		Name:   "Player",
 		Symbol: "\u2606",
 		Type:   "normal",
 		Order:  110,
-	}
-}
-
-func voice() group {
-	return group{
+	},
+	"+": Group{
 		Name:   "Voice",
 		Symbol: "+",
 		Type:   "normal",
 		Order:  200,
-	}
-}
-
-func normal() group {
-	return group{
+	},
+	" ": Group{
 		Name:   "",
 		Symbol: " ",
 		Type:   "normal",
 		Order:  201,
-	}
-}
-
-func muted() group {
-	return group{
+	},
+	"!": Group{
 		Name:   "Muted",
 		Symbol: "!",
 		Type:   "punishment",
 		Order:  301,
-	}
-}
-
-func namelocked() group {
-	return group{
+	},
+	"\u2716": Group{
 		Name:   "Namelocked",
 		Symbol: "\u2716",
 		Type:   "punishment",
 		Order:  302,
-	}
-}
-
-func locked() group {
-	return group{
+	},
+	"\u203d": Group{
 		Name:   "Locked",
 		Symbol: "\u203d",
 		Type:   "punishment",
 		Order:  303,
-	}
-}
-
-func GetGroup(symbol string) group {
-	switch symbol {
-	case "#":
-		return roomOwner()
-	case "~":
-		return administrator()
-	case "&":
-		return administrator2()
-	case "\u2605":
-		return host()
-	case "@":
-		return moderator()
-	case "%":
-		return driver()
-	case "*":
-		return bot()
-	case "\u2606":
-		return player()
-	case "+":
-		return voice()
-	case " ":
-		return normal()
-	case "!":
-		return muted()
-	case "\u2716":
-		return namelocked()
-	case "\u203d":
-		return locked()
-	default:
-		return normal()
-	}
+	},
 }

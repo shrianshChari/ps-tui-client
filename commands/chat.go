@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Chat(chatData string, room string) (message datastructs.ChatMessage, e error) {
+func Chat(chatData string, room string, groups map[string]datastructs.Group) (message datastructs.ChatMessage, e error) {
 	if room == "" {
 		room = "lobby"
 	}
@@ -24,7 +24,7 @@ func Chat(chatData string, room string) (message datastructs.ChatMessage, e erro
 	msg := data[1]
 
 	chatMsg.Room = room
-	chatMsg.Username = StringToUser(user)
+	chatMsg.Username = StringToUser(user, groups)
 	chatMsg.Message = msg
 
 	chatMsg.Timestamp = -1
@@ -33,7 +33,7 @@ func Chat(chatData string, room string) (message datastructs.ChatMessage, e erro
 	return chatMsg, nil
 }
 
-func ChatTimestamp(chatData string, room string) (message datastructs.ChatMessage, e error) {
+func ChatTimestamp(chatData string, room string, groups map[string]datastructs.Group) (message datastructs.ChatMessage, e error) {
 	if room == "" {
 		room = "lobby"
 	}
@@ -55,7 +55,7 @@ func ChatTimestamp(chatData string, room string) (message datastructs.ChatMessag
 	}
 
 	chatMsg.Room = room
-	chatMsg.Username = StringToUser(user)
+	chatMsg.Username = StringToUser(user, groups)
 	chatMsg.Message = msg
 
 	chatMsg.Timestamp = timestampInt
