@@ -87,6 +87,14 @@ func receiveHandler(connection *websocket.Conn) {
 					room.RoomName = messageData
 					serverState.Rooms[roomName] = room
 					fileLogger.Printf("Title of room %s: %s\n", roomName, messageData)
+				case "customgroups":
+					newGroups, err := commands.CustomGroups(messageData)
+					if err != nil {
+						fileLogger.Printf("Error with custom groups: %s\n", err)
+					} else {
+						serverState.Groups = newGroups
+						fileLogger.Printf("Installed custom groups: %v\n", serverState.Groups)
+					}
 				case "users":
 					room := serverState.Rooms[roomName]
 					room.Users = make(map[string]datastructs.User)
