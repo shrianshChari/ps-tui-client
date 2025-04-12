@@ -258,16 +258,24 @@ func main() {
 		}
 	}()
 
+	// First execution to update room
+	err = conn.WriteMessage(websocket.TextMessage, []byte("|/cmd rooms"))
+	if err != nil {
+		fileLogger.Fatal("Error during initial write to websocket:", err)
+	}
+
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
 	// Our main loop for the client
 	// We send our relevant packets here
 	for {
 		select {
-		case <-time.After(time.Duration(10) * time.Millisecond * 1000):
-			// Send an echo packet every second
+		case <-ticker.C:
+			// Send an echo packet every 10 seconds to update the room data
 			err := conn.WriteMessage(websocket.TextMessage, []byte("|/cmd rooms"))
 			if err != nil {
-				fileLogger.Println("Error during writing to websocket:", err)
-				return
+				fileLogger.Fatal("Error during writing to websocket:", err)
 			}
 
 		case msg := <-inputRead:
@@ -280,8 +288,7 @@ func main() {
 			// Close our websocket connection
 			err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 			if err != nil {
-				fileLogger.Println("Error during closing websocket:", err)
-				return
+				fileLogger.Fatal("Error during closing websocket:", err)
 			}
 
 			select {
