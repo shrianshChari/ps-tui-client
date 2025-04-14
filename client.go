@@ -118,6 +118,17 @@ func receiveHandler(connection *websocket.Conn) {
 					delete(room.Users, userToDelete.Id)
 					serverState.Rooms[roomName] = room
 					fileLogger.Printf("User left room %s: %s\n", roomName, userToDelete.Username)
+				case "N", "n", "name":
+					room := serverState.Rooms[roomName]
+					users := strings.Split(messageData, "|")
+
+					oldUser := room.Users[users[1]]
+					delete(room.Users, oldUser.Id)
+
+					newUser := commands.StringToUser(users[0], serverState.Groups)
+					room.Users[newUser.Id] = newUser
+					fileLogger.Printf("User in room %s changed their name from %s (away=%v) to %s (away=%v).",
+						roomName, oldUser.Id, oldUser.Away, newUser.Id, newUser.Away)
 				case "deinit":
 					room := serverState.Rooms[roomName]
 					room.Users = nil
