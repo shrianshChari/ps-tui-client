@@ -27,6 +27,14 @@ func Chat(chatData string, room string, groups map[string]datastructs.Group) (me
 	chatMsg.Username = StringToUser(user, groups)
 	chatMsg.Message = msg
 
+	if strings.HasPrefix(chatMsg.Message, "/me ") {
+		chatMsg.Me = true
+		chatMsg.Message = strings.Replace(chatMsg.Message, "/me ", "", 1)
+	} else if strings.HasPrefix(chatMsg.Message, "/raw ") {
+		chatMsg.Raw = true
+		chatMsg.Message = strings.Replace(chatMsg.Message, "/raw ", "", 1)
+	}
+
 	chatMsg.Timestamp = -1
 	chatMsg.Time = ""
 
@@ -57,6 +65,14 @@ func ChatTimestamp(chatData string, room string, groups map[string]datastructs.G
 	chatMsg.Room = room
 	chatMsg.Username = StringToUser(user, groups)
 	chatMsg.Message = msg
+
+	if strings.HasPrefix(chatMsg.Message, "/me ") {
+		chatMsg.Me = true
+		chatMsg.Message = strings.Replace(chatMsg.Message, "/me ", "", 1)
+	} else if strings.HasPrefix(chatMsg.Message, "/raw ") {
+		chatMsg.Raw = true
+		chatMsg.Message = strings.Replace(chatMsg.Message, "/raw ", "", 1)
+	}
 
 	chatMsg.Timestamp = timestampInt
 	chatMsg.Time = time.Unix(timestampInt, 0).Local().Format(time.TimeOnly)

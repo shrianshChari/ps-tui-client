@@ -150,8 +150,13 @@ func receiveHandler(connection *websocket.Conn) {
 						fileLogger.Printf("Error in chat: %v\n", err)
 					} else {
 						color := utils.UsernameToColor(chatMsg.Username.Username)
-						fmt.Printf("(%s) %s%s: %s\n", color, chatMsg.Username.Group.Symbol,
-							chatMsg.Username.Username, chatMsg.Message)
+						if chatMsg.Me {
+							fmt.Printf("(%s) %s%s %s\n", color, chatMsg.Username.Group.Symbol,
+								chatMsg.Username.Username, chatMsg.Message)
+						} else {
+							fmt.Printf("(%s) %s%s: %s\n", color, chatMsg.Username.Group.Symbol,
+								chatMsg.Username.Username, chatMsg.Message)
+						}
 						fileLogger.Printf("New message in room %s: %v\n", roomName, chatMsg)
 					}
 					room, ok := serverState.Rooms[roomName]
@@ -164,8 +169,13 @@ func receiveHandler(connection *websocket.Conn) {
 						fileLogger.Printf("Error in chat: %v\n", err)
 					} else {
 						color := utils.UsernameToColor(chatMsg.Username.Username)
-						fmt.Printf("[%s] (%s) %s%s: %s\n", chatMsg.Time, color, chatMsg.Username.Group.Symbol,
-							chatMsg.Username.Username, chatMsg.Message)
+						if chatMsg.Me {
+							fmt.Printf("[%s] (%s) %s%s %s\n", chatMsg.Time, color, chatMsg.Username.Group.Symbol,
+								chatMsg.Username.Username, chatMsg.Message)
+						} else {
+							fmt.Printf("[%s] (%s) %s%s: %s\n", chatMsg.Time, color, chatMsg.Username.Group.Symbol,
+								chatMsg.Username.Username, chatMsg.Message)
+						}
 						fileLogger.Printf("New message in room %s: %v\n", roomName, chatMsg)
 					}
 					room, ok := serverState.Rooms[roomName]

@@ -6,6 +6,8 @@ type ChatMessage struct {
 	Message   string
 	Timestamp int64
 	Time      string
+	Me        bool
+	Raw       bool
 }
 
 type ChatMessagesSortable []ChatMessage
