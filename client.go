@@ -28,7 +28,7 @@ var interrupt chan os.Signal
 
 var inputChannel chan string
 
-var serverState datastructs.Server
+var ServerState datastructs.Server
 var fileLogger *log.Logger
 
 func processInput(inputChan <-chan string, done chan<- bool, connection *websocket.Conn) {
@@ -80,60 +80,60 @@ func receiveHandler(connection *websocket.Conn) {
 
 				switch strings.ToLower(messageType) {
 				case "init":
-					serverState.Rooms[roomName] = datastructs.Room{}
+					ServerState.Rooms[roomName] = datastructs.Room{}
 					fileLogger.Printf("Initializing room %s\n", roomName)
 				case "title":
-					room := serverState.Rooms[roomName]
+					room := ServerState.Rooms[roomName]
 					room.RoomName = messageData
-					serverState.Rooms[roomName] = room
+					ServerState.Rooms[roomName] = room
 					fileLogger.Printf("Title of room %s: %s\n", roomName, messageData)
 				case "customgroups":
 					newGroups, err := commands.CustomGroups(messageData)
 					if err != nil {
 						fileLogger.Printf("Error with custom groups: %s\n", err)
 					} else {
-						serverState.Groups = newGroups
-						fileLogger.Printf("Installed custom groups: %v\n", serverState.Groups)
+						ServerState.Groups = newGroups
+						fileLogger.Printf("Installed custom groups: %v\n", ServerState.Groups)
 					}
 				case "users":
-					room := serverState.Rooms[roomName]
+					room := ServerState.Rooms[roomName]
 					room.Users = make(map[string]datastructs.User)
-					users := commands.Users(messageData, serverState.Groups)
+					users := commands.Users(messageData, ServerState.Groups)
 					for _, user := range users {
 						room.Users[user.Id] = user
 					}
-					serverState.Rooms[roomName] = room
+					ServerState.Rooms[roomName] = room
 					users = room.GetUsers()
 					sort.Sort(users)
 					fileLogger.Printf("Users in room %s: %v\n", roomName, users)
 				case "J", "j", "join":
-					room := serverState.Rooms[roomName]
-					newUser := commands.StringToUser(messageData, serverState.Groups)
+					room := ServerState.Rooms[roomName]
+					newUser := commands.StringToUser(messageData, ServerState.Groups)
 					room.Users[newUser.Id] = newUser
-					serverState.Rooms[roomName] = room
+					ServerState.Rooms[roomName] = room
 					fileLogger.Printf("User joined room %s: %s\n", roomName, newUser.Username)
 				case "L", "l", "leave":
-					room := serverState.Rooms[roomName]
-					userToDelete := commands.StringToUser(messageData, serverState.Groups)
+					room := ServerState.Rooms[roomName]
+					userToDelete := commands.StringToUser(messageData, ServerState.Groups)
 					delete(room.Users, userToDelete.Id)
-					serverState.Rooms[roomName] = room
+					ServerState.Rooms[roomName] = room
 					fileLogger.Printf("User left room %s: %s\n", roomName, userToDelete.Username)
 				case "N", "n", "name":
-					room := serverState.Rooms[roomName]
+					room := ServerState.Rooms[roomName]
 					users := strings.Split(messageData, "|")
 
 					oldUser := room.Users[users[1]]
 					delete(room.Users, oldUser.Id)
 
-					newUser := commands.StringToUser(users[0], serverState.Groups)
+					newUser := commands.StringToUser(users[0], ServerState.Groups)
 					room.Users[newUser.Id] = newUser
 					fileLogger.Printf("User in room %s changed their name from %s (away=%v) to %s (away=%v).",
 						roomName, oldUser.Id, oldUser.Away, newUser.Id, newUser.Away)
 				case "deinit":
-					room := serverState.Rooms[roomName]
+					room := ServerState.Rooms[roomName]
 					room.Users = nil
-					serverState.Rooms[roomName] = room
-					delete(serverState.Rooms, roomName)
+					ServerState.Rooms[roomName] = room
+					delete(ServerState.Rooms, roomName)
 					fileLogger.Printf("Deinitializing room %s\n", roomName)
 				case "challstr":
 					data, err := commands.ChallStr(messageData, fileLogger)
@@ -145,7 +145,7 @@ func receiveHandler(connection *websocket.Conn) {
 						connection.WriteMessage(websocket.TextMessage, []byte(trn))
 					}
 				case "chat", "c":
-					chatMsg, err := commands.Chat(messageData, roomName, serverState.Groups)
+					chatMsg, err := commands.Chat(messageData, roomName, ServerState.Groups)
 					if err != nil {
 						fileLogger.Printf("Error in chat: %v\n", err)
 					} else {
@@ -159,12 +159,12 @@ func receiveHandler(connection *websocket.Conn) {
 						}
 						fileLogger.Printf("New message in room %s: %v\n", roomName, chatMsg)
 					}
-					room, ok := serverState.Rooms[roomName]
+					room, ok := ServerState.Rooms[roomName]
 					if ok {
 						room.ChatMessages = append(room.ChatMessages, chatMsg)
 					}
 				case "chat:", "c:":
-					chatMsg, err := commands.ChatTimestamp(messageData, roomName, serverState.Groups)
+					chatMsg, err := commands.ChatTimestamp(messageData, roomName, ServerState.Groups)
 					if err != nil {
 						fileLogger.Printf("Error in chat: %v\n", err)
 					} else {
@@ -178,7 +178,7 @@ func receiveHandler(connection *websocket.Conn) {
 						}
 						fileLogger.Printf("New message in room %s: %v\n", roomName, chatMsg)
 					}
-					room, ok := serverState.Rooms[roomName]
+					room, ok := ServerState.Rooms[roomName]
 					if ok {
 						room.ChatMessages = append(room.ChatMessages, chatMsg)
 					}
@@ -192,7 +192,7 @@ func receiveHandler(connection *websocket.Conn) {
 						if err != nil {
 							fileLogger.Printf("Error in queryresponse rooms: %v\n", err)
 						}
-						serverState.RoomsInfo = roomData
+						ServerState.RoomsInfo = roomData
 						fileLogger.Printf("Roomdata: %v\n", roomData)
 					} else {
 						fileLogger.Printf("Unknown querytype %s\n", queryType)
@@ -229,10 +229,10 @@ func main() {
 
 	fileLogger = log.New(writer, "INFO: ", log.LstdFlags)
 
-	serverState = datastructs.Server{}
-	serverState.Rooms = make(map[string]datastructs.Room)
-	serverState.RoomsInfo = datastructs.RoomResponse{}
-	serverState.Groups = datastructs.DefaultGroups
+	ServerState = datastructs.Server{}
+	ServerState.Rooms = make(map[string]datastructs.Room)
+	ServerState.RoomsInfo = datastructs.RoomResponse{}
+	ServerState.Groups = datastructs.DefaultGroups
 
 	done = make(chan bool)           // Channel to indicate that the receiverHandler is done
 	interrupt = make(chan os.Signal) // Channel to listen for interrupt signal to terminate gracefully
