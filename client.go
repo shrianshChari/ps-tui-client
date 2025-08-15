@@ -161,7 +161,10 @@ func receiveHandler(connection *websocket.Conn) {
 					}
 					room, ok := ServerState.Rooms[roomName]
 					if ok {
-						room.ChatMessages = append(room.ChatMessages, chatMsg)
+						chatMsgs := room.ChatMessages
+						chatMsgs = append(chatMsgs, chatMsg)
+						room.ChatMessages = chatMsgs
+						ServerState.Rooms[roomName] = room
 					}
 				case "chat:", "c:":
 					chatMsg, err := commands.ChatTimestamp(messageData, roomName, ServerState.Groups)
@@ -180,7 +183,10 @@ func receiveHandler(connection *websocket.Conn) {
 					}
 					room, ok := ServerState.Rooms[roomName]
 					if ok {
-						room.ChatMessages = append(room.ChatMessages, chatMsg)
+						chatMsgs := room.ChatMessages
+						chatMsgs = append(chatMsgs, chatMsg)
+						room.ChatMessages = chatMsgs
+						ServerState.Rooms[roomName] = room
 					}
 				case "queryresponse":
 					responseSplit := strings.SplitN(messageData, "|", 2)
